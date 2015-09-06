@@ -2,9 +2,11 @@
 #include "obs-app.hpp"
 #include "window-basic-main.hpp"
 #include "window-basic-status-bar.hpp"
+#include "window-basic-main-outputs.hpp"
 
 OBSBasicStatusBar::OBSBasicStatusBar(QWidget *parent)
 	: QStatusBar    (parent),
+	  delayInfo     (new QLabel),
 	  droppedFrames (new QLabel),
 	  sessionTime   (new QLabel),
 	  cpuUsage      (new QLabel),
@@ -13,11 +15,13 @@ OBSBasicStatusBar::OBSBasicStatusBar(QWidget *parent)
 	sessionTime->setText(QString("00:00:00"));
 	cpuUsage->setText(QString("CPU: 0.0%"));
 
+	delayInfo->setAlignment(Qt::AlignRight);
 	droppedFrames->setAlignment(Qt::AlignRight);
 	sessionTime->setAlignment(Qt::AlignRight);
 	cpuUsage->setAlignment(Qt::AlignRight);
 	kbps->setAlignment(Qt::AlignRight);
 
+	delayInfo->setIndent(20);
 	droppedFrames->setIndent(20);
 	sessionTime->setIndent(20);
 	cpuUsage->setIndent(20);
@@ -26,27 +30,58 @@ OBSBasicStatusBar::OBSBasicStatusBar(QWidget *parent)
 	addPermanentWidget(droppedFrames);
 	addPermanentWidget(sessionTime);
 	addPermanentWidget(cpuUsage);
+	addPermanentWidget(delayInfo);
 	addPermanentWidget(kbps);
 }
 
-void OBSBasicStatusBar::IncRef()
+void OBSBasicStatusBar::Activate()
 {
-	if (activeRefs++ == 0) {
+	if (!active) {
 		refreshTimer = new QTimer(this);
 		connect(refreshTimer, SIGNAL(timeout()),
 				this, SLOT(UpdateStatusBar()));
 		totalSeconds = 0;
 		refreshTimer->start(1000);
+
+		active = true;
 	}
 }
 
-void OBSBasicStatusBar::DecRef()
+void OBSBasicStatusBar::Deactivate()
 {
-	if (--activeRefs == 0) {
+	OBSBasic *main = qobject_cast<OBSBasic*>(parent());
+	if (!main)
+		return;
+
+	if (!main->outputHandler->Active()) {
 		delete refreshTimer;
 		sessionTime->setText(QString("00:00:00"));
+		delayInfo->setText("");
 		droppedFrames->setText("");
 		kbps->setText("");
+
+		active = false;
+	}
+}
+
+void OBSBasicStatusBar::UpdateDelayMsg()
+{
+	if (delaySec != 0) {
+		QString msg = delayStarting
+			? QTStr("Basic.StatusBar.DelayStartingIn")
+			: QTStr("Basic.StatusBar.DelayStoppingIn");
+
+		msg = msg.arg(QString::number(delaySec));
+		delayInfo->setText(msg);
+
+	} else if (delaySecTotal != 0) {
+		if (delayStarting) {
+			QString msg = QTStr("Basic.StatusBar.Delay");
+			msg = msg.arg(QString::number(delaySecTotal));
+			delayInfo->setText(msg);
+		} else {
+			delayInfo->setText("");
+		}
 	}
 }
 
@@ -62,6 +97,10 @@ void OBSBasicStatusBar::UpdateBandwidth()
 
 	uint64_t bytesSent     = obs_output_get_total_bytes(streamOutput);
 	uint64_t bytesSentTime = os_gettime_ns();
+
+	if (bytesSent == 0)
+		lastBytesSent = 0;
+
 	uint64_t bitsBetween   = (bytesSent - lastBytesSent) * 8;
 
 	double timePassed = double(bytesSentTime - lastBytesSentTime) /
@@ -117,6 +156,11 @@ void OBSBasicStatusBar::UpdateSessionTime()
 		QString msg = QTStr("Basic.StatusBar.AttemptingReconnect");
 		showMessage(msg.arg(QString::number(retries)));
 	}
+
+	if (delaySec > 0) {
+		--delaySec;
+		UpdateDelayMsg();
+	}
 }
 
 void OBSBasicStatusBar::UpdateDroppedFrames()
@@ -161,6 +205,11 @@ void OBSBasicStatusBar::Reconnect(int seconds)
 {
 	retries++;
 	reconnectTimeout = seconds;
+
+	if (streamOutput) {
+		delaySecTotal = obs_output_get_active_delay(streamOutput);
+		UpdateDelayMsg();
+	}
 }
 
 void OBSBasicStatusBar::ReconnectSuccess()
@@ -171,6 +220,11 @@ void OBSBasicStatusBar::ReconnectSuccess()
 	bitrateUpdateSeconds = -1;
 	lastBytesSent        = 0;
 	lastBytesSentTime    = os_gettime_ns();
+
+	if (streamOutput) {
+		delaySecTotal = obs_output_get_active_delay(streamOutput);
+		UpdateDelayMsg();
+	}
 }
 
 void OBSBasicStatusBar::UpdateStatusBar()
@@ -178,6 +232,27 @@ void OBSBasicStatusBar::UpdateStatusBar()
 	UpdateBandwidth();
 	UpdateSessionTime();
 	UpdateDroppedFrames();
+}
+
+void OBSBasicStatusBar::StreamDelayStarting(int sec)
+{
+	OBSBasic *main = qobject_cast<OBSBasic*>(parent());
+	if (!main || !main->outputHandler)
+		return;
+
+	streamOutput = main->outputHandler->streamOutput;
+
+	delayStarting = true;
+	delaySecTotal = delaySec = sec;
+	UpdateDelayMsg();
+	Activate();
+}
+
+void OBSBasicStatusBar::StreamDelayStopping(int sec)
+{
+	delayStarting = false;
+	delaySecTotal = delaySec = sec;
+	UpdateDelayMsg();
 }
 
 void OBSBasicStatusBar::StreamStarted(obs_output_t *output)
@@ -192,7 +267,7 @@ void OBSBasicStatusBar::StreamStarted(obs_output_t *output)
 	retries           = 0;
 	lastBytesSent     = 0;
 	lastBytesSentTime = os_gettime_ns();
-	IncRef();
+	Activate();
 }
 
 void OBSBasicStatusBar::StreamStopped()
@@ -208,18 +283,18 @@ void OBSBasicStatusBar::StreamStopped()
 
 		streamOutput = nullptr;
 		clearMessage();
-		DecRef();
+		Deactivate();
 	}
 }
 
 void OBSBasicStatusBar::RecordingStarted(obs_output_t *output)
 {
 	recordOutput = output;
-	IncRef();
+	Activate();
 }
 
 void OBSBasicStatusBar::RecordingStopped()
 {
 	recordOutput = nullptr;
-	DecRef();
+	Deactivate();
 }

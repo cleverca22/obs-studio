@@ -3051,12 +3051,12 @@ void OBSBasic::StartStreaming()
 {
 	SaveProject();
 
-	if (outputHandler->StreamingActive())
-		return;
+	ui->streamButton->setEnabled(false);
+	ui->streamButton->setText(QTStr("Basic.Main.Connecting"));
 
-	if (outputHandler->StartStreaming(service)) {
-		ui->streamButton->setEnabled(false);
-		ui->streamButton->setText(QTStr("Basic.Main.Connecting"));
+	if (!outputHandler->StartStreaming(service)) {
+		ui->streamButton->setText(QTStr("Basic.Main.StartStreaming"));
+		ui->streamButton->setEnabled(true);
 	}
 }
 
@@ -3076,6 +3076,60 @@ void OBSBasic::StopStreaming()
 	if (!outputHandler->Active()) {
 		ui->profileMenu->setEnabled(true);
 	}
+}
+
+void OBSBasic::ForceStopStreaming()
+{
+	QMessageBox::StandardButton button = QMessageBox::question(this,
+			QTStr("Basic.Main.ForceStopStreaming.Title"),
+			QTStr("Basic.Main.ForceStopStreaming.Text"));
+	if (button == QMessageBox::No)
+		return;
+
+	SaveProject();
+
+	if (outputHandler->StreamingActive())
+		outputHandler->ForceStopStreaming();
+
+	if (!outputHandler->Active()) {
+		ui->profileMenu->setEnabled(true);
+	}
+}
+
+void OBSBasic::StreamDelayStarting(int sec)
+{
+	ui->streamButton->setText(QTStr("Basic.Main.StopStreaming"));
+	ui->streamButton->setEnabled(true);
+
+	if (!startStreamMenu.isNull())
+		startStreamMenu->deleteLater();
+
+	startStreamMenu = new QMenu();
+	startStreamMenu->addAction(QTStr("Basic.Main.StopStreaming"),
+			this, SLOT(StopStreaming()));
+	startStreamMenu->addAction(QTStr("Basic.Main.ForceStopStreaming"),
+			this, SLOT(ForceStopStreaming()));
+	ui->streamButton->setMenu(startStreamMenu);
+
+	ui->statusbar->StreamDelayStarting(sec);
+}
+
+void OBSBasic::StreamDelayStopping(int sec)
+{
+	ui->streamButton->setText(QTStr("Basic.Main.StartStreaming"));
+	ui->streamButton->setEnabled(true);
+
+	if (!startStreamMenu.isNull())
+		startStreamMenu->deleteLater();
+
+	startStreamMenu = new QMenu();
+	startStreamMenu->addAction(QTStr("Basic.Main.StartStreaming"),
+			this, SLOT(StartStreaming()));
+	startStreamMenu->addAction(QTStr("Basic.Main.ForceStopStreaming"),
+			this, SLOT(ForceStopStreaming()));
+	ui->streamButton->setMenu(startStreamMenu);
+
+	ui->statusbar->StreamDelayStopping(sec);
 }
 
 void OBSBasic::StreamingStart()
@@ -3129,6 +3183,12 @@ void OBSBasic::StreamingStop(int code)
 		QMessageBox::information(this,
 				QTStr("Output.ConnectFail.Title"),
 				QT_UTF8(errorMessage));
+
+	if (!startStreamMenu.isNull()) {
+		ui->streamButton->setMenu(nullptr);
+		startStreamMenu->deleteLater();
+		startStreamMenu = nullptr;
+	}
 }
 
 void OBSBasic::StartRecording()
