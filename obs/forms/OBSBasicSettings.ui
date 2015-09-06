@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>895</width>
-    <height>614</height>
+    <width>937</width>
+    <height>653</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -2640,8 +2640,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>428</width>
-              <height>287</height>
+              <width>776</width>
+              <height>596</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -2785,6 +2785,98 @@
                        <string notr="true">601</string>
                       </property>
                      </item>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QGroupBox" name="groupBox_5">
+                  <property name="title">
+                   <string>Basic.Settings.Advanced.StreamDelay</string>
+                  </property>
+                  <layout class="QFormLayout" name="formLayout_18">
+                   <item row="0" column="1">
+                    <widget class="QCheckBox" name="streamDelayEnable">
+                     <property name="text">
+                      <string>Enable</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_56">
+                     <property name="text">
+                      <string>Basic.Settings.Advanced.StreamDelay.Duration</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QWidget" name="widget_12" native="true">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <layout class="QHBoxLayout" name="horizontalLayout_13">
+                      <property name="spacing">
+                       <number>5</number>
+                      </property>
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="QSpinBox" name="streamDelaySec">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>80</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="suffix">
+                         <string notr="true">s</string>
+                        </property>
+                        <property name="minimum">
+                         <number>1</number>
+                        </property>
+                        <property name="maximum">
+                         <number>1800</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="streamDelayInfo">
+                        <property name="text">
+                         <string notr="true">Estimated RAM goes here</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QCheckBox" name="streamDelayPreserve">
+                     <property name="text">
+                      <string>Basic.Settings.Advanced.StreamDelay.Preserve</string>
+                     </property>
                     </widget>
                    </item>
                   </layout>
@@ -3062,12 +3154,12 @@
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>705</x>
-     <y>144</y>
+     <x>232</x>
+     <y>80</y>
     </hint>
     <hint type="destinationlabel">
-     <x>396</x>
-     <y>245</y>
+     <x>241</x>
+     <y>92</y>
     </hint>
    </hints>
   </connection>
@@ -3078,12 +3170,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>514</x>
-     <y>344</y>
+     <x>168</x>
+     <y>103</y>
     </hint>
     <hint type="destinationlabel">
-     <x>748</x>
-     <y>344</y>
+     <x>250</x>
+     <y>103</y>
     </hint>
    </hints>
   </connection>
@@ -3094,12 +3186,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>864</x>
-     <y>141</y>
+     <x>232</x>
+     <y>77</y>
     </hint>
     <hint type="destinationlabel">
-     <x>427</x>
-     <y>178</y>
+     <x>338</x>
+     <y>79</y>
     </hint>
    </hints>
   </connection>
@@ -3110,12 +3202,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>864</x>
-     <y>141</y>
+     <x>232</x>
+     <y>77</y>
     </hint>
     <hint type="destinationlabel">
-     <x>864</x>
-     <y>178</y>
+     <x>232</x>
+     <y>79</y>
     </hint>
    </hints>
   </connection>
@@ -3126,12 +3218,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>864</x>
-     <y>141</y>
+     <x>232</x>
+     <y>77</y>
     </hint>
     <hint type="destinationlabel">
-     <x>427</x>
-     <y>215</y>
+     <x>168</x>
+     <y>82</y>
     </hint>
    </hints>
   </connection>
@@ -3142,12 +3234,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>864</x>
-     <y>141</y>
+     <x>232</x>
+     <y>77</y>
     </hint>
     <hint type="destinationlabel">
-     <x>864</x>
-     <y>215</y>
+     <x>232</x>
+     <y>82</y>
     </hint>
    </hints>
   </connection>
@@ -3158,12 +3250,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>427</x>
-     <y>355</y>
+     <x>168</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>862</x>
-     <y>355</y>
+     <x>232</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -3174,12 +3266,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>424</x>
-     <y>331</y>
+     <x>168</x>
+     <y>96</y>
     </hint>
     <hint type="destinationlabel">
-     <x>658</x>
-     <y>331</y>
+     <x>232</x>
+     <y>96</y>
     </hint>
    </hints>
   </connection>
@@ -3222,12 +3314,60 @@
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>732</x>
-     <y>179</y>
+     <x>250</x>
+     <y>89</y>
     </hint>
     <hint type="destinationlabel">
-     <x>777</x>
-     <y>206</y>
+     <x>250</x>
+     <y>92</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>streamDelayEnable</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_56</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>533</x>
+     <y>273</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>streamDelayEnable</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>streamDelayPreserve</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>578</x>
+     <y>275</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>593</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>streamDelayEnable</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widget_12</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>517</x>
+     <y>267</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>582</x>
+     <y>310</y>
     </hint>
    </hints>
   </connection>
