@@ -596,6 +596,18 @@ extern float obs_source_get_target_volume(obs_source_t *source,
 /* ------------------------------------------------------------------------- */
 /* outputs  */
 
+enum delay_msg {
+	DELAY_MSG_PACKET,
+	DELAY_MSG_START,
+	DELAY_MSG_STOP,
+};
+
+struct delay_data {
+	enum delay_msg msg;
+	uint64_t ts;
+	struct encoder_packet packet;
+};
+
 typedef void (*encoded_callback_t)(void *data, struct encoder_packet *packet);
 
 struct obs_weak_output {
@@ -649,7 +661,26 @@ struct obs_output {
 	struct audio_convert_info       audio_conversion;
 
 	bool                            valid;
+
+	uint64_t                        active_delay_ns;
+	encoded_callback_t              delay_callback;
+	struct circlebuf                delay_data; /* struct delay_data */
+	pthread_mutex_t                 delay_mutex;
+	uint32_t                        delay_sec;
+	uint32_t                        delay_flags;
+	uint32_t                        delay_cur_flags;
+	volatile long                   delay_restart_refs;
+	bool                            delay_active;
+	bool                            delay_capturing;
 };
+
+extern void process_delay(void *data, struct encoder_packet *packet);
+extern void obs_output_cleanup_delay(obs_output_t *output);
+extern bool obs_output_delay_start(obs_output_t *output);
+extern void obs_output_delay_stop(obs_output_t *output);
+extern bool obs_output_actual_start(obs_output_t *output);
+extern void obs_output_actual_stop(obs_output_t *output, bool force);
+extern void obs_output_signal_delay(obs_output_t *output, const char *signal);
 
 extern const struct obs_output_info *find_output(const char *id);
 
